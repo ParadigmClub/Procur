@@ -74,5 +74,14 @@ FLASK_ENV=development
 - Also, in case the event head goes rogue, permissions are scoped
 
 
+### Why the name
+
+Procur comes from Procurator which means "manager". Internally developed as SparkHub it was renamed to sound like a professional and new event management tool.
+
+---
+
+
+
+
 
 
