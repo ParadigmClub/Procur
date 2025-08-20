@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Procur{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-primary">
+        <i class="fas fa-cog mr-2"></i>Admin Panel
+    </h1>
+    <p class="opacity-70">Manage users, events, and system settings</p>
+</div>
+
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="card bg-base-100 shadow-lg text-center">
+        <div class="card-body">
+            <div class="text-primary mb-2">
+                <i class="fas fa-users text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-primary">{{ users|length }}</h3>
+            <p class="opacity-70">Total Users</p>
+        </div>
+    </div>
+    <div class="card bg-base-100 shadow-lg text-center">
+        <div class="card-body">
+            <div class="text-success mb-2">
+                <i class="fas fa-calendar text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-success">{{ events|length }}</h3>
+            <p class="opacity-70">Total Events</p>
+        </div>
+    </div>
+    <div class="card bg-base-100 shadow-lg text-center">
+        <div class="card-body">
+            <div class="text-info mb-2">
+                <i class="fas fa-user-check text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-info">{{ registrations|length }}</h3>
+            <p class="opacity-70">Total Registrations</p>
+        </div>
+    </div>
+    <div class="card bg-base-100 shadow-lg text-center">
+        <div class="card-body">
+            <div class="text-warning mb-2">
+                <i class="fas fa-school text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-warning">{{
+                users|selectattr('school')|map(attribute='school')|unique|list|length }}</h3>
+            <p class="opacity-70">Participating Schools</p>
+        </div>
+    </div>
+</div>
+
+
+<div class="tabs tabs-boxed mb-6">
+    <a class="tab tab-active" id="users-tab" onclick="showTab('users')">
+        <i class="fas fa-users mr-2"></i>Users Management
+    </a>
+    <a class="tab" id="events-tab" onclick="showTab('events')">
+        <i class="fas fa-calendar mr-2"></i>Events Management
+    </a>
+    <a class="tab" id="registrations-tab" onclick="showTab('registrations')">
+        <i class="fas fa-user-check mr-2"></i>Registrations
+    </a>
+    <div class="ml-auto">
+        <div class="join">
+            <a href="{{ url_for('export_csv', what='users') }}" class="btn btn-sm join-item"><i
+                    class="fas fa-file-csv mr-2"></i>Users CSV</a>
+            <a href="{{ url_for('export_csv', what='events') }}" class="btn btn-sm join-item"><i
+                    class="fas fa-file-csv mr-2"></i>Events CSV</a>
+            <a href="{{ url_for('export_csv', what='registrations') }}" class="btn btn-sm join-item"><i
+                    class="fas fa-file-csv mr-2"></i>Regs CSV</a>
+        </div>
+    </div>
+</div>
+
+
+<div id="users" class="tab-content active">
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-header bg-base-200">
+            <h3 class="card-title">
+                <i class="fas fa-users mr-2 text-primary"></i>Users Management
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>School</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <div class="font-bold">{{ user.username }}</div>
+                                {% if user.id == current_user.id %}
+                                <div class="badge badge-info">You</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.school }}</td>
+                            <td>
+                                <div
+                                    class="badge badge-{{ 'error' if user.role == 'admin' else 'warning' if user.role == 'coordinator' else 'info' }}">
+                                    {{ user.role|title }}
+                                </div>
+                            </td>
+                            <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                {% if user.id != current_user.id %}
+                                <a href="{{ url_for('toggle_user_role', user_id=user.id) }}"
+                                    class="btn btn-outline btn-warning btn-sm"
+                                    onclick="return confirm('Are you sure you want to change this user\'s role?')">
+                                    <i class="fas fa-exchange-alt mr-1"></i>Change Role
+                                </a>
+                                {% else %}
+                                <span class="opacity-60">Current User</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="events" class="tab-content hidden">
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-header bg-base-200">
+            <h3 class="card-title">
+                <i class="fas fa-calendar mr-2 text-primary"></i>Events Management
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Event Title</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Participants</th>
+                            <th>Organizer</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td>
+                                <div class="font-bold">{{ event.title }}</div>
+                                <div class="text-sm opacity-50">{{ event.location }}</div>
+                            </td>
+                            <td>
+                                <div class="badge badge-secondary">{{ event.category|title }}</div>
+                            </td>
+                            <td>{{ event.event_date.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                <div
+                                    class="badge badge-{{ 'success' if event.status == 'upcoming' else 'warning' if event.status == 'ongoing' else 'info' if event.status == 'completed' else 'error' }}">
+                                    {{ event.status|title }}
+                                </div>
+                            </td>
+                            <td>
+                                {% set reg_count = event.registration_count %}
+                                <div
+                                    class="badge badge-{{ 'success' if reg_count < event.max_participants * 0.8 else 'warning' if reg_count < event.max_participants else 'error' }}">
+                                    {{ reg_count }}/{{ event.max_participants }}
+                                </div>
+                            </td>
+                            <td>{{ event.creator.username }}</td>
+                            <td>
+                                <div class="join">
+                                    <a href="{{ url_for('event_detail', event_id=event.id) }}"
+                                        class="btn btn-outline btn-primary btn-sm join-item">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('toggle_event_status', event_id=event.id) }}"
+                                        class="btn btn-outline btn-warning btn-sm join-item"
+                                        onclick="return confirm('Are you sure you want to change this event\'s status?')">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="registrations" class="tab-content hidden">
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-header bg-base-200">
+            <h3 class="card-title">
+                <i class="fas fa-user-check mr-2 text-primary"></i>Event Registrations
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="overflow-x-auto">
+                <table class="table table-zebra">
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>School</th>
+                            <th>Event</th>
+                            <th>Registration Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registration in registrations %}
+                        <tr>
+                            <td>
+                                <div class="font-bold">{{ registration.user.username }}</div>
+                                <div class="text-sm opacity-50">{{ registration.user.email }}</div>
+                            </td>
+                            <td>{{ registration.user.school }}</td>
+                            <td>
+                                <div class="font-bold">{{ registration.event.title }}</div>
+                                <div class="text-sm opacity-50">{{ registration.event.category|title }}</div>
+                            </td>
+                            <td>{{ registration.registration_date.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                <div
+                                    class="badge badge-{{ 'success' if registration.status == 'confirmed' else 'warning' if registration.status == 'registered' else 'error' }}">
+                                    {{ registration.status|title }}
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('event_detail', event_id=registration.event.id) }}"
+                                    class="btn btn-outline btn-primary btn-sm">
+                                    <i class="fas fa-eye mr-1"></i>View Event
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="mt-12">
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-header bg-base-200">
+            <h3 class="card-title">
+                <i class="fas fa-server mr-2 text-primary"></i>System Information
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-primary font-bold mb-3">Database Statistics:</h4>
+                    <ul class="space-y-2">
+                        <li><strong>Total Users:</strong> {{ users|length }}</li>
+                        <li><strong>Total Events:</strong> {{ events|length }}</li>
+                        <li><strong>Total Registrations:</strong> {{ registrations|length }}</li>
+                        <li><strong>Active Events:</strong> {{ events|selectattr('status', 'equalto',
+                            'upcoming')|list|length + events|selectattr('status', 'equalto', 'ongoing')|list|length }}
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-primary font-bold mb-3">Role Distribution:</h4>
+                    <ul class="space-y-2">
+                        <li><strong>Admins:</strong> {{ users|selectattr('role', 'equalto', 'admin')|list|length }}</li>
+                        <li><strong>Coordinators:</strong> {{ users|selectattr('role', 'equalto',
+                            'coordinator')|list|length }}</li>
+                        <li><strong>Participants:</strong> {{ users|selectattr('role', 'equalto',
+                            'participant')|list|length }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        // Hide all tab contents
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach(content => {
+            content.classList.add('hidden');
+            content.classList.remove('active');
+        });
+
+        // Remove active class from all tabs
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.classList.remove('tab-active');
+        });
+
+        // Show selected tab content
+        document.getElementById(tabName).classList.remove('hidden');
+        document.getElementById(tabName).classList.add('active');
+
+        // Add active class to selected tab
+        document.getElementById(tabName + '-tab').classList.add('tab-active');
+    }
+</script>
+{% endblock %}

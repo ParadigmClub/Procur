@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Create Event - Procur{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <div class="text-sm breadcrumbs">
+        <ul>
+            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li>Create Event</li>
+        </ul>
+    </div>
+
+    <h1 class="text-3xl font-bold text-primary">Create New Event</h1>
+    <p class="opacity-70">Organize a new interschool event for your community</p>
+</div>
+
+<div class="flex justify-center">
+    <div class="w-full max-w-4xl">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-header bg-base-200">
+                <h3 class="card-title">
+                    <i class="fas fa-calendar-plus mr-2 text-primary"></i>Event Information
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="form-control md:col-span-2">
+                            <label class="label" for="title">
+                                <span class="label-text">Event Title <span class="text-error">*</span></span>
+                            </label>
+                            <input type="text" class="input input-bordered w-full" id="title" name="title" required
+                                placeholder="Enter event title">
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="category">
+                                <span class="label-text">Category <span class="text-error">*</span></span>
+                            </label>
+                            <select class="select select-bordered w-full" id="category" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="sports">Sports</option>
+                                <option value="academic">Academic</option>
+                                <option value="cultural">Cultural</option>
+                                <option value="technical">Technical</option>
+                                <option value="literary">Literary</option>
+                                <option value="art">Art & Design</option>
+                                <option value="music">Music</option>
+                                <option value="dance">Dance</option>
+                                <option value="drama">Drama</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-control mb-4">
+                        <label class="label" for="description">
+                            <span class="label-text">Event Description <span class="text-error">*</span></span>
+                        </label>
+                        <textarea class="textarea textarea-bordered h-24" id="description" name="description" required
+                            placeholder="Provide a detailed description of the event, including objectives, activities, and any special requirements"></textarea>
+                        <label class="label">
+                            <span class="label-text-alt">Be descriptive to help participants understand what to
+                                expect</span>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label class="label" for="event_date">
+                                <span class="label-text">Event Date & Time <span class="text-error">*</span></span>
+                            </label>
+                            <input type="datetime-local" class="input input-bordered w-full" id="event_date"
+                                name="event_date" required>
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="registration_deadline">
+                                <span class="label-text">Registration Deadline <span class="text-error">*</span></span>
+                            </label>
+                            <input type="datetime-local" class="input input-bordered w-full" id="registration_deadline"
+                                name="registration_deadline" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="form-control md:col-span-2">
+                            <label class="label" for="location">
+                                <span class="label-text">Event Location <span class="text-error">*</span></span>
+                            </label>
+                            <input type="text" class="input input-bordered w-full" id="location" name="location"
+                                required placeholder="Enter venue or location details">
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="max_participants">
+                                <span class="label-text">Maximum Participants</span>
+                            </label>
+                            <input type="number" class="input input-bordered w-full" id="max_participants"
+                                name="max_participants" value="100" min="1" max="1000">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Require Coordinator Approval</span></label>
+                            <input type="checkbox" class="toggle" name="require_approval">
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Allow Team Registration</span></label>
+                            <input type="checkbox" class="toggle" name="team_allowed">
+                        </div>
+                        <div class="form-control">
+                            <label class="label"><span class="label-text">Team Size (min - max)</span></label>
+                            <div class="join">
+                                <input type="number" class="input input-bordered join-item w-24" name="team_min"
+                                    value="1" min="1">
+                                <input type="number" class="input input-bordered join-item w-24" name="team_max"
+                                    value="1" min="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-control mb-6">
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" class="checkbox checkbox-primary" id="confirm_details" required>
+                            <span class="label-text">I confirm that all the information provided is accurate and
+                                complete</span>
+                        </label>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save mr-2"></i>Create Event
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-lg">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="card bg-base-100 shadow-lg mt-6">
+            <div class="card-header bg-base-200">
+                <h4 class="card-title">
+                    <i class="fas fa-info-circle mr-2 text-primary"></i>Event Creation Guidelines
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h5 class="text-primary font-bold mb-3">Before Creating an Event:</h5>
+                        <ul class="space-y-1 text-sm opacity-70">
+                            <li>• Ensure you have all necessary permissions</li>
+                            <li>• Confirm venue availability and booking</li>
+                            <li>• Set realistic participant limits</li>
+                            <li>• Plan adequate time for registration</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="text-primary font-bold mb-3">Best Practices:</h5>
+                        <ul class="space-y-1 text-sm opacity-70">
+                            <li>• Provide clear, detailed descriptions</li>
+                            <li>• Set reasonable deadlines</li>
+                            <li>• Choose appropriate categories</li>
+                            <li>• Consider accessibility needs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

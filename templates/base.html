@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="forest">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SparkHub{% endblock %}</title>
+
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="min-h-screen bg-base-100" style="font-family: 'Inter', system-ui, -apple-system, sans-serif;">
+
+    <div class="navbar bg-neutral text-neutral-content shadow-lg sticky top-0 z-50">
+        <div class="navbar-start">
+            <div class="dropdown">
+                <div tabindex="0" role="button" class="btn btn-ghost lg:hidden text-neutral-content">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h8m-8 6h16"></path>
+                    </svg>
+                </div>
+                <ul tabindex="0"
+                    class="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow-lg bg-neutral text-neutral-content rounded-box w-64 border border-base-300">
+                    <li><a href="{{ url_for('index') }}"
+                            class="rounded-lg text-neutral-content hover:bg-primary hover:text-primary-content transition-all"><i
+                                class="fas fa-home w-4"></i>Home</a></li>
+                    <li><a href="{{ url_for('events') }}"
+                            class="rounded-lg text-neutral-content hover:bg-primary hover:text-primary-content transition-all"><i
+                                class="fas fa-calendar w-4"></i>Events</a></li>
+                    {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('dashboard') }}"
+                            class="rounded-lg text-neutral-content hover:bg-primary hover:text-primary-content transition-all"><i
+                                class="fas fa-tachometer-alt w-4"></i>Dashboard</a></li>
+                    {% if current_user.role in ['admin', 'coordinator'] %}
+                    <li><a href="{{ url_for('create_event') }}"
+                            class="rounded-lg text-neutral-content hover:bg-success hover:text-success-content transition-all"><i
+                                class="fas fa-plus-circle w-4"></i>Create Event</a></li>
+                    {% endif %}
+                    {% if current_user.role == 'admin' %}
+                    <li><a href="{{ url_for('admin_panel') }}"
+                            class="rounded-lg text-neutral-content hover:bg-warning hover:text-warning-content transition-all"><i
+                                class="fas fa-cog w-4"></i>Admin Panel</a></li>
+                    {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
+            <a href="{{ url_for('index') }}"
+                class="btn btn-ghost text-xl font-bold text-primary hover:text-primary-focus">
+                <i class="fas fa-calendar-star mr-2 text-2xl"></i>
+                <span class="hidden sm:inline"> SparkHub </span>
+                <span class="sm:hidden">EP</span>
+            </a>
+        </div>
+        <div class="navbar-center hidden lg:flex">
+            <ul class="menu menu-horizontal px-1">
+                <li><a href="{{ url_for('index') }}"
+                        class="rounded-lg text-neutral-content hover:bg-primary hover:text-primary-content transition-all"><i
+                            class="fas fa-home mr-2"></i>Home</a></li>
+                <li><a href="{{ url_for('events') }}"
+                        class="rounded-lg text-neutral-content hover:bg-primary hover:text-primary-content transition-all"><i
+                            class="fas fa-calendar mr-2"></i>Events</a></li>
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('dashboard') }}"
+                        class="rounded-lg text-neutral-content hover:bg-primary hover:text-primary-content transition-all"><i
+                            class="fas fa-tachometer-alt mr-2"></i>Dashboard</a></li>
+                {% if current_user.role in ['admin', 'coordinator'] %}
+                <li><a href="{{ url_for('create_event') }}"
+                        class="rounded-lg text-neutral-content hover:bg-success hover:text-success-content transition-all"><i
+                            class="fas fa-plus-circle mr-2"></i>Create Event</a></li>
+                {% endif %}
+                {% if current_user.role == 'admin' %}
+                <li><a href="{{ url_for('admin_panel') }}"
+                        class="rounded-lg text-neutral-content hover:bg-warning hover:text-warning-content transition-all"><i
+                            class="fas fa-cog mr-2"></i>Admin Panel</a></li>
+                {% endif %}
+                {% endif %}
+            </ul>
+        </div>
+        <div class="navbar-end">
+
+            {% if current_user.is_authenticated %}
+            <div class="dropdown dropdown-end mr-3">
+                <div tabindex="0" role="button"
+                    class="btn btn-ghost btn-circle tooltip tooltip-bottom text-neutral-content"
+                    data-tip="Notifications">
+                    <div class="indicator">
+                        <i class="fas fa-bell text-lg"></i>
+                        {% if nav_notifications_count > 0 %}
+                        <span class="badge badge-xs badge-primary indicator-item">{{ nav_notifications_count }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div tabindex="0"
+                    class="dropdown-content z-50 menu p-2 shadow-lg bg-neutral text-neutral-content rounded-box w-80 border border-base-300">
+                    <div class="p-3 border-b border-base-300">
+                        <h3 class="font-bold text-lg">Notifications</h3>
+                    </div>
+                    <ul class="menu">
+                        {% if nav_notifications %}
+                        {% for n in nav_notifications %}
+                        <li><a class="hover:bg-primary/10 text-neutral-content"
+                                href="{{ url_for('notifications_mark_read', notif_id=n.id) }}">
+                                <div class="avatar">
+                                    <div class="w-8 rounded-full bg-primary text-primary-content text-xs">EP</div>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-semibold">{{ n.title }}</div>
+                                    {% if n.body %}<div class="text-xs opacity-80">{{ n.body }}</div>{% endif %}
+                                    <div class="text-xs opacity-60">{{ n.created_at.strftime('%b %d, %I:%M %p') }}</div>
+                                </div>
+                            </a></li>
+                        {% endfor %}
+                        {% else %}
+                        <li>
+                            <div class="p-4 text-sm opacity-80">No new notifications</div>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    <div class="p-3 border-t border-base-300">
+                        <a href="{{ url_for('notifications_list') }}" class="btn btn-primary btn-sm w-full">View All</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if current_user.is_authenticated %}
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div
+                        class="w-10 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-content flex items-center justify-center shadow-lg">
+                        <i class="fas fa-user text-lg"></i>
+                    </div>
+                </div>
+                <ul tabindex="0"
+                    class="menu menu-sm dropdown-content mt-3 z-50 p-3 shadow-lg bg-neutral text-neutral-content rounded-box w-64 border border-base-300">
+                    <li class="px-3 py-2 border-b border-base-300 mb-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="avatar">
+                                <div
+                                    class="w-8 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-content flex items-center justify-center">
+                                    <i class="fas fa-user text-sm"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-neutral-content">{{ current_user.username }}</div>
+                                <div class="text-xs opacity-80">{{ current_user.email }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="px-3 py-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm opacity-80">School:</span>
+                            <span class="text-sm font-medium">{{ current_user.school }}</span>
+                        </div>
+                    </li>
+                    <li class="px-3 py-1 mb-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm opacity-80">Role:</span>
+                            <div
+                                class="badge badge-sm badge-{{ 'error' if current_user.role == 'admin' else 'warning' if current_user.role == 'coordinator' else 'info' }}">
+                                {{ current_user.role|title }}
+                            </div>
+                        </div>
+                    </li>
+                    <li><a href="{{ url_for('dashboard') }}"
+                            class="rounded-lg text-neutral-content hover:bg-primary/10"><i
+                                class="fas fa-tachometer-alt mr-2"></i>Dashboard</a></li>
+                    <li><a href="#" class="rounded-lg text-neutral-content hover:bg-primary/10"><i
+                                class="fas fa-user-edit mr-2"></i>Edit Profile</a></li>
+                    <li><a href="#" class="rounded-lg text-neutral-content hover:bg-primary/10"><i
+                                class="fas fa-cog mr-2"></i>Settings</a></li>
+                    <li>
+                        <div class="divider my-2"></div>
+                    </li>
+                    <li><a href="{{ url_for('logout') }}" class="text-error hover:bg-error/10 rounded-lg"><i
+                                class="fas fa-sign-out-alt mr-2"></i>Logout</a></li>
+                </ul>
+            </div>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-ghost rounded-lg text-neutral-content">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary rounded-lg">Register</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mx-auto px-4 mt-4">
+        {% for category, message in messages %}
+        <div
+            class="alert alert-{{ 'error' if category == 'error' else category }} mb-4 shadow-lg border-l-4 border-{{ 'error' if category == 'error' else category }} animate-fade-in">
+            <div class="flex-1 flex items-center">
+                <i
+                    class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' if category == 'info' else 'exclamation-triangle' }} mr-3 text-lg"></i>
+                <span>{{ message }}</span>
+            </div>
+            <button class="btn btn-sm btn-ghost hover:btn-error" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+
+    <main class="container mx-auto px-4 my-8">
+        {% block content %}{% endblock %}
+    </main>
+
+
+    <footer class="footer footer-center p-10 bg-base-200 text-base-content mt-16">
+        <div>
+            <div class="grid grid-flow-col gap-4">
+                <a class="link link-hover">About us</a>
+                <a class="link link-hover">Contact</a>
+                <a class="link link-hover">Privacy Policy</a>
+                <a class="link link-hover">Terms of Service</a>
+            </div>
+        </div>
+        <div>
+            <p class="text-sm opacity-60">SparkHub-Procur . Made by Firelynx.</p>
+        </div>
+    </footer>
+
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            try { localStorage.removeItem('theme'); } catch (e) { }
+            document.documentElement.setAttribute('data-theme', 'forest');
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+
+</html>

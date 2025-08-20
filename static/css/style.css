@@ -1,0 +1,419 @@
+html {
+	scroll-behavior: smooth;
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slide-in-left {
+	from {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes slide-in-right {
+	from {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes bounce-in {
+	0% {
+		opacity: 0;
+		transform: scale(0.3);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.05);
+	}
+	70% {
+		transform: scale(0.9);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes float {
+	0%,
+	100% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+}
+
+.animate-fade-in {
+	animation: fade-in 0.8s ease-out;
+}
+
+.animate-slide-in-left {
+	animation: slide-in-left 0.8s ease-out;
+}
+
+.animate-slide-in-right {
+	animation: slide-in-right 0.8s ease-out;
+}
+
+.animate-bounce-in {
+	animation: bounce-in 0.8s ease-out;
+}
+
+.animate-float {
+	animation: float 3s ease-in-out infinite;
+}
+
+.card {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+	transform: translateY(-8px);
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.btn {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	position: relative;
+	overflow: hidden;
+}
+
+.btn::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.2),
+		transparent
+	);
+	transition: left 0.5s;
+}
+
+.btn:hover::before {
+	left: 100%;
+}
+
+.input,
+.select,
+.textarea {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	border-width: 2px;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.badge {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge:hover {
+	transform: scale(1.05);
+}
+
+.navbar {
+	backdrop-filter: blur(10px);
+	background: rgba(255, 255, 255, 0.8);
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: hsl(var(--b2));
+}
+
+::-webkit-scrollbar-thumb {
+	background: hsl(var(--p));
+	border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: hsl(var(--pf));
+}
+
+.shadow-3xl {
+	box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+}
+
+.bg-gradient-radial {
+	background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+}
+
+.card {
+	border: 1px solid hsl(var(--b3));
+}
+
+.btn:focus,
+.input:focus,
+.select:focus,
+.textarea:focus {
+	outline: 2px solid hsl(var(--p));
+	outline-offset: 2px;
+}
+
+* {
+	transition-property: color, background-color, border-color,
+		text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
+		backdrop-filter;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 150ms;
+}
+
+.loading {
+	position: relative;
+	overflow: hidden;
+}
+
+.loading::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.4),
+		transparent
+	);
+	animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+	0% {
+		left: -100%;
+	}
+	100% {
+		left: 100%;
+	}
+}
+
+@media (max-width: 768px) {
+	.hero-content h1 {
+		font-size: 2.5rem;
+	}
+
+	.stats {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 480px) {
+	.hero-content h1 {
+		font-size: 2rem;
+	}
+
+	.stats {
+		grid-template-columns: 1fr;
+	}
+}
+
+[data-theme] {
+	transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+.btn:focus-visible,
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+	outline: 2px solid hsl(var(--p));
+	outline-offset: 2px;
+}
+
+.btn:active {
+	transform: scale(0.95);
+}
+
+.tooltip {
+	position: relative;
+}
+
+.tooltip::before {
+	content: attr(data-tip);
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	background: hsl(var(--n));
+	color: hsl(var(--nc));
+	padding: 0.5rem;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	white-space: nowrap;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.3s;
+	z-index: 1000;
+}
+
+.tooltip:hover::before {
+	opacity: 1;
+}
+
+.card-interactive {
+	cursor: pointer;
+	user-select: none;
+}
+
+.card-interactive:hover {
+	transform: translateY(-4px) scale(1.02);
+}
+
+.progress {
+	height: 0.5rem;
+	border-radius: 0.25rem;
+	overflow: hidden;
+}
+
+.progress::-webkit-progress-bar {
+	background-color: hsl(var(--b3));
+	border-radius: 0.25rem;
+}
+
+.progress::-webkit-progress-value {
+	background: linear-gradient(90deg, hsl(var(--p)), hsl(var(--s)));
+	border-radius: 0.25rem;
+	transition: width 0.3s ease;
+}
+
+.modal {
+	animation: modal-fade-in 0.3s ease-out;
+}
+
+@keyframes modal-fade-in {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.dropdown-content {
+	animation: dropdown-slide-down 0.2s ease-out;
+}
+
+@keyframes dropdown-slide-down {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+.table th {
+	background: hsl(var(--b2));
+	font-weight: 600;
+	text-transform: uppercase;
+	font-size: 0.75rem;
+	letter-spacing: 0.05em;
+}
+
+.table td,
+.table th {
+	padding: 1rem;
+	border-bottom: 1px solid hsl(var(--b3));
+}
+
+.table tbody tr:hover {
+	background: hsl(var(--b2));
+}
+
+.alert {
+	animation: alert-slide-in 0.3s ease-out;
+}
+
+@keyframes alert-slide-in {
+	from {
+		opacity: 0;
+		transform: translateX(-100%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.avatar {
+	transition: all 0.3s ease;
+}
+
+.avatar:hover {
+	transform: scale(1.1);
+}
+
+.divider {
+	height: 1px;
+	background: linear-gradient(90deg, transparent, hsl(var(--b3)), transparent);
+	margin: 1.5rem 0;
+}
+
+.link {
+	position: relative;
+	text-decoration: none;
+}
+
+.link::after {
+	content: "";
+	position: absolute;
+	bottom: -2px;
+	left: 0;
+	width: 0;
+	height: 2px;
+	background: currentColor;
+	transition: width 0.3s ease;
+}
+
+.link:hover::after {
+	width: 100%;
+}

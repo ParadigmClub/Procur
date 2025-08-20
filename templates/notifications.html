@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="card bg-base-100 shadow-lg">
+  <div class="card-header bg-base-200">
+    <h3 class="card-title"><i class="fas fa-bell mr-2"></i>Your Notifications</h3>
+  </div>
+  <div class="card-body">
+    {% if notifications %}
+      <div class="space-y-3">
+        {% for n in notifications %}
+          <div class="p-3 border border-base-300 rounded-lg flex justify-between items-start">
+            <div>
+              <div class="font-semibold">{{ n.title }}</div>
+              {% if n.body %}<div class="opacity-70">{{ n.body }}</div>{% endif %}
+              <div class="text-xs opacity-50 mt-1">{{ n.created_at.strftime('%b %d, %I:%M %p') }}</div>
+            </div>
+            {% if not n.read_at %}
+              <a href="{{ url_for('notifications_mark_read', notif_id=n.id) }}" class="btn btn-sm">Mark read</a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="opacity-60">You have no notifications.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

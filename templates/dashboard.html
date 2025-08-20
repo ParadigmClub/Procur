@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SparkHub{% endblock %}
+
+{% block content %}
+
+<div class="hero bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-3xl mb-10 p-8">
+    <div class="hero-content text-center">
+        <div class="max-w-4xl">
+            <div class="avatar mb-6">
+                <div
+                    class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-content flex items-center justify-center shadow-2xl">
+                    <i class="fas fa-user text-3xl"></i>
+                </div>
+            </div>
+            <h1
+                class="text-5xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
+                Welcome back, {{ current_user.username }}!
+            </h1>
+            <p class="text-xl opacity-70 mb-6">Manage your events, track your progress, and stay connected with your
+                school community</p>
+            <div class="flex flex-wrap justify-center gap-3">
+                <div class="badge badge-primary badge-lg">
+                    <i class="fas fa-school mr-2"></i>{{ current_user.school }}
+                </div>
+                <div
+                    class="badge badge-{{ 'error' if current_user.role == 'admin' else 'warning' if current_user.role == 'coordinator' else 'info' }} badge-lg">
+                    <i
+                        class="fas fa-{{ 'crown' if current_user.role == 'admin' else 'user-tie' if current_user.role == 'coordinator' else 'user' }} mr-2"></i>
+                    {{ current_user.role|title }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <div class="stat bg-base-100 shadow-xl rounded-3xl border border-base-300">
+        <div class="stat-figure text-primary">
+            <i class="fas fa-calendar-check text-4xl"></i>
+        </div>
+        <div class="stat-title text-base-content/70">Registered Events</div>
+        <div class="stat-value text-primary text-3xl">{{ registered_events|length }}</div>
+        <div class="stat-desc text-base-content/60">Events you've joined</div>
+    </div>
+
+    <div class="stat bg-base-100 shadow-xl rounded-3xl border border-base-300">
+        <div class="stat-figure text-success">
+            <i class="fas fa-plus-circle text-4xl"></i>
+        </div>
+        <div class="stat-title text-base-content/70">Created Events</div>
+        <div class="stat-value text-success text-3xl">{{ created_events|length }}</div>
+        <div class="stat-desc text-base-content/60">Events you've organized</div>
+    </div>
+
+    <div class="stat bg-base-100 shadow-xl rounded-3xl border border-base-300">
+        <div class="stat-figure text-info">
+            <i class="fas fa-trophy text-4xl"></i>
+        </div>
+        <div class="stat-title text-base-content/70">Total Participation</div>
+        <div class="stat-value text-info text-3xl">{{ (registered_events|length + created_events|length) }}</div>
+        <div class="stat-desc text-base-content/60">Combined activities</div>
+    </div>
+
+    <div class="stat bg-base-100 shadow-xl rounded-3xl border border-base-300">
+        <div class="stat-figure text-warning">
+            <i class="fas fa-star text-4xl"></i>
+        </div>
+        <div class="stat-title text-base-content/70">Member Since</div>
+        <div class="stat-value text-warning text-2xl">{{ current_user.created_at.strftime('%Y') }}</div>
+        <div class="stat-desc text-base-content/60">{{ current_user.created_at.strftime('%B %d') }}</div>
+    </div>
+</div>
+
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+
+    <div class="lg:col-span-2">
+        <div class="card bg-base-100 shadow-2xl border border-base-300">
+            <div class="card-body p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="card-title text-3xl">
+                        <i class="fas fa-user-circle mr-3 text-primary"></i>Profile Information
+                    </h3>
+                    <button class="btn btn-outline btn-primary btn-sm">
+                        <i class="fas fa-edit mr-2"></i>Edit Profile
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold text-base-content/80">
+                                    <i class="fas fa-user mr-2 text-primary"></i>Username
+                                </span>
+                            </label>
+                            <input type="text" value="{{ current_user.username }}"
+                                class="input input-bordered bg-base-200" readonly>
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold text-base-content/80">
+                                    <i class="fas fa-envelope mr-2 text-primary"></i>Email Address
+                                </span>
+                            </label>
+                            <input type="email" value="{{ current_user.email }}"
+                                class="input input-bordered bg-base-200" readonly>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold text-base-content/80">
+                                    <i class="fas fa-school mr-2 text-primary"></i>School
+                                </span>
+                            </label>
+                            <input type="text" value="{{ current_user.school }}"
+                                class="input input-bordered bg-base-200" readonly>
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold text-base-content/80">
+                                    <i class="fas fa-user-tag mr-2 text-primary"></i>Role
+                                </span>
+                            </label>
+                            <div
+                                class="badge badge-lg badge-{{ 'error' if current_user.role == 'admin' else 'warning' if current_user.role == 'coordinator' else 'info' }} p-4">
+                                <i
+                                    class="fas fa-{{ 'crown' if current_user.role == 'admin' else 'user-tie' if current_user.role == 'coordinator' else 'user' }} mr-2"></i>
+                                {{ current_user.role|title }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider my-6"></div>
+
+                <div class="flex items-center justify-between">
+                    <span class="text-sm opacity-60">
+                        <i class="fas fa-calendar-alt mr-2"></i>Member since {{ current_user.created_at.strftime('%B %d,
+                        %Y') }}
+                    </span>
+                    <div class="flex gap-3">
+                        <button class="btn btn-outline btn-secondary btn-sm">
+                            <i class="fas fa-cog mr-2"></i>Settings
+                        </button>
+                        <button class="btn btn-outline btn-accent btn-sm">
+                            <i class="fas fa-bell mr-2"></i>Notifications
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card bg-base-100 shadow-2xl border border-base-300">
+        <div class="card-body p-6">
+            <h3 class="card-title text-2xl mb-6">
+                <i class="fas fa-clock mr-3 text-secondary"></i>Recent Activity
+            </h3>
+            <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="avatar">
+                        <div
+                            class="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center shadow-lg">
+                            <i class="fas fa-plus text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-base-content">Registered for new events</p>
+                        <p class="text-xs opacity-60">2 hours ago</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="avatar">
+                        <div
+                            class="w-10 h-10 rounded-full bg-success text-success-content flex items-center justify-center shadow-lg">
+                            <i class="fas fa-check text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-base-content">Profile updated</p>
+                        <p class="text-xs opacity-60">1 day ago</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="avatar">
+                        <div
+                            class="w-10 h-10 rounded-full bg-info text-info-content flex items-center justify-center shadow-lg">
+                            <i class="fas fa-calendar text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-base-content">Joined the platform</p>
+                        <p class="text-xs opacity-60">{{ current_user.created_at.strftime('%B %d') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% if registered_events %}
+<div class="mb-10">
+    <div class="card bg-gradient-to-br from-primary/5 to-primary/10 shadow-2xl border border-primary/20">
+        <div class="card-header bg-gradient-to-r from-primary/20 to-primary/30 border-b border-primary/20 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="card-title text-3xl text-primary">
+                        <i class="fas fa-calendar-check mr-3"></i>Your Registered Events
+                    </h3>
+                    <p class="opacity-70 mt-2">Events you've signed up to participate in</p>
+                </div>
+                <div class="badge badge-primary badge-lg p-4">
+                    <span class="text-lg">{{ registered_events|length }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for event in registered_events %}
+                <div
+                    class="card bg-base-100 shadow-lg hover:shadow-2xl border-l-4 border-primary transition-all duration-500 transform hover:-translate-y-2 group">
+                    <div class="card-body p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="badge badge-primary badge-lg">{{ event.category|title }}</div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-primary">{{ event.event_date.strftime('%b') }}
+                                </div>
+                                <div class="text-3xl font-bold text-base-content">{{ event.event_date.strftime('%d') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="card-title text-xl mb-3 group-hover:text-primary transition-colors duration-300">{{
+                            event.title }}</h4>
+                        <p class="opacity-70 text-sm leading-relaxed mb-4">{{ event.description[:100] }}{% if
+                            event.description|length > 100 %}...{% endif %}</p>
+
+                        <div class="divider my-4"></div>
+
+                        <div class="space-y-3 text-sm mb-6">
+                            <div class="flex items-center text-base-content/70">
+                                <i class="fas fa-map-marker-alt mr-3 w-4 text-primary"></i>
+                                <span>{{ event.location }}</span>
+                            </div>
+                            <div class="flex items-center text-base-content/70">
+                                <i class="fas fa-clock mr-3 w-4 text-primary"></i>
+                                <span>{{ event.event_date.strftime('%I:%M %p') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="card-actions justify-end">
+                            <a href="{{ url_for('event_detail', event_id=event.id) }}"
+                                class="btn btn-primary btn-sm rounded-full group">
+                                <i class="fas fa-eye mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+{% if created_events %}
+<div class="mb-10">
+    <div class="card bg-gradient-to-br from-success/5 to-success/10 shadow-2xl border border-success/20">
+        <div class="card-header bg-gradient-to-r from-success/20 to-success/30 border-b border-success/20 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="card-title text-3xl text-success">
+                        <i class="fas fa-plus-circle mr-3"></i>Events You've Created
+                    </h3>
+                    <p class="opacity-70 mt-2">Manage and monitor your organized events</p>
+                </div>
+                <div class="badge badge-success badge-lg p-4">
+                    <span class="text-lg">{{ created_events|length }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for event in created_events %}
+                <div
+                    class="card bg-base-100 shadow-lg hover:shadow-2xl border-l-4 border-success transition-all duration-500 transform hover:-translate-y-2 group">
+                    <div class="card-body p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="badge badge-success badge-lg">{{ event.category|title }}</div>
+                            <div class="text-right">
+                                <div class="text-sm font-semibold text-success">{{ event.event_date.strftime('%b') }}
+                                </div>
+                                <div class="text-3xl font-bold text-base-content">{{ event.event_date.strftime('%d') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="card-title text-xl mb-3 group-hover:text-success transition-colors duration-300">{{
+                            event.title }}</h4>
+                        <p class="opacity-70 text-sm leading-relaxed mb-4">{{ event.description[:100] }}{% if
+                            event.description|length > 100 %}...{% endif %}</p>
+
+                        <div class="divider my-4"></div>
+
+                        <div class="space-y-3 text-sm mb-6">
+                            <div class="flex items-center text-base-content/70">
+                                <i class="fas fa-map-marker-alt mr-3 w-4 text-success"></i>
+                                <span>{{ event.location }}</span>
+                            </div>
+                            <div class="flex items-center text-base-content/70">
+                                <i class="fas fa-users mr-3 w-4 text-success"></i>
+                                <span>{{ event.registration_count }}/{{ event.max_participants }} participants</span>
+                            </div>
+                        </div>
+
+                        <div class="card-actions justify-end">
+                            <a href="{{ url_for('event_detail', event_id=event.id) }}"
+                                class="btn btn-success btn-sm rounded-full group">
+                                <i class="fas fa-cog mr-2 group-hover:rotate-180 transition-transform duration-500"></i>
+                                Manage Event
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+<div class="card bg-base-100 shadow-2xl border border-base-300">
+    <div class="card-body p-8">
+        <h3 class="card-title text-3xl mb-6">
+            <i class="fas fa-bolt mr-3 text-accent"></i>Quick Actions
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{{ url_for('events') }}"
+                class="btn btn-outline btn-primary btn-lg h-24 flex-col gap-2 group hover:shadow-lg transition-all duration-300">
+                <i class="fas fa-calendar text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+                <span>Browse Events</span>
+            </a>
+
+            {% if current_user.role in ['admin', 'coordinator'] %}
+            <a href="{{ url_for('create_event') }}"
+                class="btn btn-outline btn-success btn-lg h-24 flex-col gap-2 group hover:shadow-lg transition-all duration-300">
+                <i class="fas fa-plus-circle text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+                <span>Create Event</span>
+            </a>
+            {% endif %}
+
+            <a href="#"
+                class="btn btn-outline btn-secondary btn-lg h-24 flex-col gap-2 group hover:shadow-lg transition-all duration-300">
+                <i class="fas fa-bell text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+                <span>Notifications</span>
+            </a>
+
+            <a href="#"
+                class="btn btn-outline btn-accent btn-lg h-24 flex-col gap-2 group hover:shadow-lg transition-all duration-300">
+                <i class="fas fa-cog text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

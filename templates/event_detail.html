@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - Procur{% endblock %}
+
+{% block content %}
+
+<div class="mb-6">
+    <div class="text-sm breadcrumbs">
+        <ul>
+            <li><a href="{{ url_for('events') }}">Events</a></li>
+            <li>{{ event.title }}</li>
+        </ul>
+    </div>
+
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-primary">{{ event.title }}</h1>
+            <p class="opacity-70">{{ event.description }}</p>
+        </div>
+        <div class="text-right">
+            <div
+                class="badge badge-{{ 'success' if event.status == 'upcoming' else 'warning' if event.status == 'ongoing' else 'info' if event.status == 'completed' else 'error' }} text-lg">
+                {{ event.status|title }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <div class="lg:col-span-2">
+        <div class="card bg-base-100 shadow-lg mb-6">
+            <div class="card-header bg-base-200">
+                <h3 class="card-title">
+                    <i class="fas fa-info-circle mr-2 text-primary"></i>Event Details
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar text-primary mr-3 text-xl"></i>
+                        <div>
+                            <div class="font-semibold">Date & Time</div>
+                            <span class="opacity-70">{{ event.event_date.strftime('%A, %B %d, %Y at %I:%M %p') }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt text-primary mr-3 text-xl"></i>
+                        <div>
+                            <div class="font-semibold">Location</div>
+                            <span class="opacity-70">{{ event.location }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-tag text-primary mr-3 text-xl"></i>
+                        <div>
+                            <div class="font-semibold">Category</div>
+                            <div class="badge badge-secondary">{{ event.category|title }}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-users text-primary mr-3 text-xl"></i>
+                        <div>
+                            <div class="font-semibold">Capacity</div>
+                            <span class="opacity-70">{{ registrations|length }}/{{ event.max_participants }}
+                                participants</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-hourglass-end text-primary mr-3 text-xl"></i>
+                        <div>
+                            <div class="font-semibold">Registration Deadline</div>
+                            <span class="opacity-70">{{ event.registration_deadline.strftime('%B %d, %Y at %I:%M %p')
+                                }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-user text-primary mr-3 text-xl"></i>
+                        <div>
+                            <div class="font-semibold">Organized by</div>
+                            <span class="opacity-70">{{ event.creator.username }} ({{ event.creator.school }})</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {% if schedule %}
+        <div class="card bg-base-100 shadow-lg mb-6">
+            <div class="card-header bg-base-200">
+                <h3 class="card-title">
+                    <i class="fas fa-clock mr-2 text-primary"></i>Event Schedule
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for item in schedule %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <h4 class="font-bold mb-2">{{ item.activity }}</h4>
+                            <p class="opacity-70 mb-2">{{ item.start_time.strftime('%I:%M %p') }} - {{
+                                item.end_time.strftime('%I:%M %p') }}</p>
+                            {% if item.location %}
+                            <small class="opacity-60">
+                                <i class="fas fa-map-marker-alt mr-2"></i>{{ item.location }}
+                            </small>
+                            {% endif %}
+                            {% if item.description %}
+                            <p class="mt-3 mb-0">{{ item.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+
+        {% if registrations %}
+        <div class="card bg-base-100 shadow-lg">
+            <div class="card-header bg-base-200">
+                <h3 class="card-title">
+                    <i class="fas fa-users mr-2 text-primary"></i>Registered Participants ({{ registrations|length }})
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {% for registration in registrations %}
+                    <div class="flex items-center p-3 border border-base-300 rounded-lg">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-circle text-2xl opacity-60"></i>
+                        </div>
+                        <div class="flex-grow-1 ml-3">
+                            <div class="font-semibold">{{ registration.user.username }}</div>
+                            <small class="opacity-60">{{ registration.user.school }}</small>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div
+                                class="badge badge-{{ 'success' if registration.status == 'confirmed' else 'warning' if registration.status == 'registered' else 'error' }}">
+                                {{ registration.status|title }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+
+        <div class="card bg-base-100 shadow-lg mt-6">
+            <div class="card-header bg-base-200">
+                <h3 class="card-title">
+                    <i class="fas fa-comments mr-2 text-primary"></i>Discussion
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if current_user.is_authenticated %}
+                <form method="POST" action="{{ url_for('add_comment', event_id=event.id) }}" class="mb-4">
+                    <div class="form-control">
+                        <textarea name="body" class="textarea textarea-bordered"
+                            placeholder="Ask a question or share info..." required></textarea>
+                    </div>
+                    <div class="mt-3 text-right">
+                        <button class="btn btn-primary btn-sm"><i class="fas fa-paper-plane mr-2"></i>Post</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle mr-2"></i>Login to participate in the discussion.
+                </div>
+                {% endif %}
+
+                {% if comments %}
+                <div class="space-y-4">
+                    {% for c in comments %}
+                    <div class="p-3 border border-base-300 rounded-lg">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="font-semibold">{{ c.user.username if c.user else ('User ' ~ c.user_id) }}</div>
+                            <small class="opacity-60">{{ c.created_at.strftime('%b %d, %Y %I:%M %p') }}</small>
+                        </div>
+                        <div class="opacity-80">{{ c.body }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <small class="opacity-60">No comments yet.</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+    <div class="lg:col-span-1">
+
+        <div class="card bg-base-100 shadow-lg mb-6 sticky top-8">
+            <div class="card-header bg-base-200">
+                <h3 class="card-title">
+                    <i class="fas fa-edit mr-2 text-primary"></i>Registration
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if current_user.is_authenticated %}
+                {% if is_registered %}
+                <div class="text-center py-6">
+                    <div class="text-success mb-4">
+                        <i class="fas fa-check-circle text-5xl"></i>
+                    </div>
+                    <h4 class="text-success font-bold">Already Registered!</h4>
+                    <p class="opacity-70">You are registered for this event</p>
+                </div>
+                {% else %}
+                {% if event.status == 'upcoming' %}
+                {% if event.registration_deadline > now %}
+                {% if registrations|length < event.max_participants %} <form method="POST"
+                    action="{{ url_for('register_event', event_id=event.id) }}">
+                    <div class="mb-4">
+                        <p class="opacity-70 text-sm">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Registration closes on {{ event.registration_deadline.strftime('%B %d, %Y') }}
+                        </p>
+                    </div>
+                    <div class="w-full">
+                        <button type="submit" class="btn btn-primary btn-lg w-full">
+                            <i class="fas fa-plus mr-2"></i>Register for Event
+                        </button>
+                    </div>
+                    </form>
+                    {% else %}
+                    <div class="text-center py-6">
+                        <div class="text-warning mb-4">
+                            <i class="fas fa-exclamation-triangle text-5xl"></i>
+                        </div>
+                        <h4 class="text-warning font-bold">Event Full</h4>
+                        <p class="opacity-70 mb-4">Maximum participants reached. You can join the waitlist.</p>
+                        <form method="POST" action="{{ url_for('register_event', event_id=event.id) }}">
+                            <button type="submit" class="btn btn-outline btn-warning">
+                                <i class="fas fa-user-clock mr-2"></i>Join Waitlist
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-6">
+                        <div class="text-error mb-4">
+                            <i class="fas fa-times-circle text-5xl"></i>
+                        </div>
+                        <h4 class="text-error font-bold">Registration Closed</h4>
+                        <p class="opacity-70">Deadline has passed</p>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-6">
+                        <div class="text-info mb-4">
+                            <i class="fas fa-info-circle text-5xl"></i>
+                        </div>
+                        <h4 class="text-info font-bold">Registration Not Available</h4>
+                        <p class="opacity-70">Event is {{ event.status }}</p>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-6">
+                        <div class="opacity-30 mb-4">
+                            <i class="fas fa-user-lock text-5xl"></i>
+                        </div>
+                        <h4 class="opacity-60 font-bold">Login Required</h4>
+                        <p class="opacity-60 mb-4">Please login to register for this event</p>
+                        <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+                    </div>
+                    {% endif %}
+            </div>
+        </div>
+
+
+        <div class="card bg-base-100 shadow-lg mb-6">
+            <div class="card-header bg-base-200">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie mr-2 text-primary"></i>Event Statistics
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-2 gap-4 text-center mb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-primary">{{ registrations|length }}</h3>
+                        <small class="opacity-70">Registered</small>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-success">{{ event.max_participants - registrations|length }}
+                        </h3>
+                        <small class="opacity-70">Available</small>
+                    </div>
+                </div>
+                <div class="w-full bg-base-200 rounded-full h-2 mb-2">
+                    <div class="bg-primary h-2 rounded-full"
+                        style="width: {{ (registrations|length / event.max_participants * 100)|round }}%">
+                    </div>
+                </div>
+                <small class="opacity-70">{{ (registrations|length / event.max_participants * 100)|round }}% capacity
+                    filled</small>
+            </div>
+        </div>
+
+
+        <div class="card bg-base-100 shadow-lg">
+            <div class="card-header bg-base-200">
+                <h3 class="card-title">
+                    <i class="fas fa-bolt mr-2 text-primary"></i>Quick Actions
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="space-y-3">
+                    <a href="{{ url_for('events') }}" class="btn btn-outline btn-primary w-full">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Events
+                    </a>
+                    <a href="{{ url_for('event_ics', event_id=event.id) }}" class="btn w-full">
+                        <i class="fas fa-calendar-plus mr-2"></i>Add to Calendar (ICS)
+                    </a>
+                    {% if current_user.is_authenticated and current_user.role in ['admin', 'coordinator'] %}
+                    <a href="{{ url_for('toggle_event_approval', event_id=event.id) }}" class="btn w-full">
+                        <i class="fas fa-shield-check mr-2"></i>Require Approval: {{ 'ON' if event.require_approval else
+                        'OFF' }}
+                    </a>
+                    <form method="POST" action="{{ url_for('upload_event_file', event_id=event.id) }}"
+                        enctype="multipart/form-data" class="w-full">
+                        <label class="label"><span class="label-text">Upload attachment</span></label>
+                        <input type="file" name="file" class="file-input file-input-bordered w-full" />
+                        <button class="btn btn-outline btn-sm mt-2 w-full"><i
+                                class="fas fa-upload mr-2"></i>Upload</button>
+                    </form>
+                    {% endif %}
+                    {% if current_user.is_authenticated and is_registered %}
+                    {% set myreg = (registrations|selectattr('user_id', 'equalto', current_user.id)|list|first) %}
+                    {% if myreg and myreg.notes and 'qr:' in myreg.notes %}
+                    <a href="{{ url_for('ticket_qr', qr_token=myreg.notes.split('qr:')[1]) }}"
+                        class="btn btn-outline btn-info w-full">
+                        <i class="fas fa-qrcode mr-2"></i>My QR Ticket
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                    {% if current_user.is_authenticated and current_user.role in ['admin', 'coordinator'] %}
+                    <a href="#" class="btn btn-outline btn-warning w-full">
+                        <i class="fas fa-edit mr-2"></i>Edit Event
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

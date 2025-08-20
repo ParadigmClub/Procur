@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+
+{% block title %}Events - Procur{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="hero bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 rounded-3xl">
+        <div class="hero-content text-center py-8">
+            <div class="max-w-2xl">
+                <div class="mb-4">
+                    <div
+                        class="inline-block p-3 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-content shadow-lg">
+                        <i class="fas fa-calendar-alt text-3xl"></i>
+                    </div>
+                </div>
+                <h1
+                    class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3">
+                    Browse Events</h1>
+                <p class="text-lg opacity-70 mb-6">Discover and register for amazing interschool events happening near
+                    you</p>
+
+
+                <div class="form-control w-full max-w-lg mx-auto">
+                    <div class="input-group">
+                        <form method="GET" class="w-full">
+                            <input type="text" name="q" value="{{ request.args.get('q','') }}"
+                                placeholder="Search events by name, category, or location..."
+                                class="input input-bordered w-full" id="quickSearch">
+                        </form>
+                        <button class="btn btn-primary" onclick="performQuickSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="mb-8">
+    <div class="card bg-gradient-to-br from-base-100 to-base-200 shadow-xl border border-primary/10">
+        <div class="card-body">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="card-title text-xl">
+                    <i class="fas fa-filter mr-2 text-primary"></i>Filter Events
+                </h3>
+                <div class="badge badge-outline">
+                    <i class="fas fa-list mr-1"></i>{{ events|length if events else 0 }} events
+                </div>
+            </div>
+
+            <form method="GET" id="filterForm">
+                <div class="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 gap-4 mb-6">
+                    <div class="form-control">
+                        <label class="label" for="category">
+                            <span class="label-text font-semibold"><i class="fas fa-tag mr-1"></i>Category</span>
+                        </label>
+                        <select class="select select-bordered select-primary w-full" id="category" name="category"
+                            onchange="updateFilters()">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat[0] }}" {{ 'selected' if category==cat[0] }}>{{ cat[0]|title }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="status">
+                            <span class="label-text font-semibold"><i class="fas fa-signal mr-1"></i>Status</span>
+                        </label>
+                        <select class="select select-bordered select-secondary w-full" id="status" name="status"
+                            onchange="updateFilters()">
+                            <option value="">All Statuses</option>
+                            <option value="upcoming" {{ 'selected' if status=='upcoming' }}>Upcoming</option>
+                            <option value="ongoing" {{ 'selected' if status=='ongoing' }}>Live Now</option>
+                            <option value="completed" {{ 'selected' if status=='completed' }}>Completed</option>
+                            <option value="cancelled" {{ 'selected' if status=='cancelled' }}>Cancelled</option>
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="dateRange">
+                            <span class="label-text font-semibold"><i class="fas fa-calendar mr-1"></i>Date Range</span>
+                        </label>
+                        <select class="select select-bordered select-accent w-full" id="dateRange" name="date_range"
+                            onchange="updateFilters()">
+                            <option value="">Any Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="next_month">Next Month</option>
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="sortBy">
+                            <span class="label-text font-semibold"><i class="fas fa-sort mr-1"></i>Sort By</span>
+                        </label>
+                        <select class="select select-bordered select-info w-full" id="sortBy" name="sort_by"
+                            onchange="updateFilters()">
+                            <option value="date_asc">Date (Earliest First)</option>
+                            <option value="date_desc">Date (Latest First)</option>
+                            <option value="name_asc">Name (A-Z)</option>
+                            <option value="popular">Most Popular</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div id="activeFilters" class="flex flex-wrap gap-2 mb-4"></div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-between items-center">
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-primary btn-sm rounded-full"
+                            onclick="document.getElementById('filterForm').submit()">
+                            <i class="fas fa-search mr-2"></i>Apply Filters
+                        </button>
+                        <a href="{{ url_for('events') }}" class="btn btn-outline btn-sm rounded-full">
+                            <i class="fas fa-refresh mr-2"></i>Reset All
+                        </a>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAdvancedFilters()">
+                            <i class="fas fa-cog mr-2"></i>Advanced
+                        </button>
+                    </div>
+
+
+                    <div class="join">
+                        <button class="btn join-item btn-sm" onclick="setView('grid')" id="gridView">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <button class="btn join-item btn-sm" onclick="setView('list')" id="listView">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% if events %}
+<div id="eventsContainer">
+
+    <div id="gridViewContainer" class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6">
+        {% for event in events %}
+        <div
+            class="card bg-gradient-to-br from-base-100 to-base-200 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-base-300 event-card">
+            <div class="card-body relative overflow-hidden">
+                <div class="flex justify-between items-start mb-4 relative z-10">
+                    <div class="flex flex-col gap-2">
+                        <div
+                            class="badge badge-{{ 'success' if event.status == 'upcoming' else 'warning' if event.status == 'ongoing' else 'info' if event.status == 'completed' else 'error' }} badge-lg">
+                            <i
+                                class="fas fa-{{ 'clock' if event.status == 'upcoming' else 'broadcast-tower' if event.status == 'ongoing' else 'check' if event.status == 'completed' else 'times' }} mr-1"></i>
+                            {{ event.status|title }}
+                        </div>
+                        <div class="badge badge-outline badge-lg">{{ event.category|title }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-bold text-primary">{{ event.event_date.strftime('%b') }}</div>
+                        <div class="text-3xl font-bold">{{ event.event_date.strftime('%d') }}</div>
+                    </div>
+                </div>
+
+                <h3 class="card-title text-xl mb-3">{{ event.title }}</h3>
+                <p class="opacity-70 text-sm leading-relaxed mb-4">{{ event.description[:100] }}{% if
+                    event.description|length > 100 %}...{% endif %}</p>
+
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-3 text-sm text-base-content/70">
+                        <i class="fas fa-clock w-4"></i>
+                        <span>{{ event.event_date.strftime('%I:%M %p') }}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-base-content/70">
+                        <i class="fas fa-map-marker-alt w-4"></i>
+                        <span>{{ event.location }}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-base-content/70">
+                        <i class="fas fa-users w-4"></i>
+                        <span>{{ event.registration_count }}/{{ event.max_participants }} participants</span>
+                        {% set progress_percent = (event.registration_count / event.max_participants * 100) if
+                        event.max_participants > 0 else 0 %}
+                        <progress class="progress progress-primary w-16 ml-2" value="{{ progress_percent }}"
+                            max="100"></progress>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-base-content/70">
+                        <i class="fas fa-hourglass-end w-4"></i>
+                        <span>Reg. ends: {{ event.registration_deadline.strftime('%b %d') }}</span>
+                    </div>
+                </div>
+
+                <div class="card-actions">
+                    <a href="{{ url_for('event_detail', event_id=event.id) }}"
+                        class="btn btn-primary btn-sm w-full rounded-full">
+                        <i class="fas fa-eye mr-2"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+    <div id="listViewContainer" class="space-y-4 hidden">
+        {% for event in events %}
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 event-card">
+            <div class="card-body">
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <div class="flex-shrink-0">
+                        <div
+                            class="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center text-primary-content shadow-lg">
+                            <div class="text-center">
+                                <div class="text-xs font-semibold">{{ event.event_date.strftime('%b') }}</div>
+                                <div class="text-2xl font-bold">{{ event.event_date.strftime('%d') }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1">
+                        <div class="flex flex-col lg:flex-row justify-between items-start gap-4">
+                            <div class="flex-1">
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <div
+                                        class="badge badge-{{ 'success' if event.status == 'upcoming' else 'warning' if event.status == 'ongoing' else 'info' if event.status == 'completed' else 'error' }}">
+                                        {{ event.status|title }}
+                                    </div>
+                                    <div class="badge badge-outline">{{ event.category|title }}</div>
+                                </div>
+
+                                <h3 class="text-xl font-bold mb-2">{{ event.title }}</h3>
+                                <p class="opacity-70 mb-3">{{ event.description[:150] }}{% if event.description|length >
+                                    150 %}...{% endif %}</p>
+
+                                <div class="flex flex-wrap gap-4 text-sm text-base-content/70">
+                                    <span><i class="fas fa-clock mr-1"></i>{{ event.event_date.strftime('%I:%M %p')
+                                        }}</span>
+                                    <span><i class="fas fa-map-marker-alt mr-1"></i>{{ event.location }}</span>
+                                    <span><i class="fas fa-users mr-1"></i>{{ event.registration_count }}/{{
+                                        event.max_participants }}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex-shrink-0">
+                                <a href="{{ url_for('event_detail', event_id=event.id) }}"
+                                    class="btn btn-primary rounded-full">
+                                    <i class="fas fa-eye mr-2"></i>View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<div class="flex flex-col lg:flex-row justify-between items-center mt-12 gap-4">
+    <div class="stats shadow-lg">
+        <div class="stat">
+            <div class="stat-figure text-primary">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-title">Showing Results</div>
+            <div class="stat-value text-primary">{{ events|length }}</div>
+            <div class="stat-desc">event{{ 's' if events|length != 1 else '' }} found</div>
+        </div>
+    </div>
+
+    <div class="flex gap-3">
+        <button class="btn btn-outline btn-primary" onclick="loadMoreEvents()">
+            <i class="fas fa-plus mr-2"></i>Load More Events
+        </button>
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-outline">
+                <i class="fas fa-share-alt mr-2"></i>Export
+            </div>
+            <ul tabindex="0" class="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li><a><i class="fas fa-file-pdf mr-2"></i>Export to PDF</a></li>
+                <li><a><i class="fas fa-file-csv mr-2"></i>Export to CSV</a></li>
+                <li><a><i class="fas fa-calendar mr-2"></i>Add to Calendar</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% else %}
+
+<div class="card bg-gradient-to-br from-base-100 to-base-200 shadow-xl border border-base-300">
+    <div class="card-body text-center py-20">
+        <div class="mb-8">
+            <div class="inline-block p-6 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 mb-4">
+                <i class="fas fa-search text-6xl opacity-30"></i>
+            </div>
+        </div>
+
+        <h3 class="text-3xl font-bold opacity-60 mb-4">No Events Found</h3>
+        <p class="text-lg opacity-60 mb-8 max-w-lg mx-auto">
+            {% if category or status %}
+            No events match your current filters. Try adjusting your search criteria or explore different categories.
+            {% else %}
+            There are no events available at the moment. Check back later for exciting new events!
+            {% endif %}
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            {% if category or status %}
+            <a href="{{ url_for('events') }}" class="btn btn-primary btn-lg rounded-full">
+                <i class="fas fa-refresh mr-2"></i>Clear All Filters
+            </a>
+            {% endif %}
+            <a href="{{ url_for('events', category='sports') }}" class="btn btn-outline btn-lg rounded-full">
+                <i class="fas fa-futbol mr-2"></i>Browse Sports Events
+            </a>
+            <a href="{{ url_for('events', category='academic') }}" class="btn btn-outline btn-lg rounded-full">
+                <i class="fas fa-graduation-cap mr-2"></i>Academic Events
+            </a>
+        </div>
+
+
+        <div class="divider">Or</div>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            {% if current_user.is_authenticated and current_user.role in ['admin', 'coordinator'] %}
+            <a href="{{ url_for('create_event') }}" class="btn btn-success rounded-full">
+                <i class="fas fa-plus mr-2"></i>Create New Event
+            </a>
+            {% endif %}
+            <button class="btn btn-ghost rounded-full" onclick="document.getElementById('quickSearch').focus()">
+                <i class="fas fa-search mr-2"></i>Try Different Search
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+<div class="mt-12">
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-header bg-base-200">
+            <h3 class="card-title">
+                <i class="fas fa-info-circle mr-2 text-primary"></i>Event Categories
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <div class="text-success mb-3">
+                        <i class="fas fa-futbol text-4xl"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Sports</h4>
+                    <small class="opacity-60">Athletic competitions and tournaments</small>
+                </div>
+                <div class="text-center">
+                    <div class="text-primary mb-3">
+                        <i class="fas fa-graduation-cap text-4xl"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Academic</h4>
+                    <small class="opacity-60">Quiz competitions and debates</small>
+                </div>
+                <div class="text-center">
+                    <div class="text-warning mb-3">
+                        <i class="fas fa-music text-4xl"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Cultural</h4>
+                    <small class="opacity-60">Music, dance, and art events</small>
+                </div>
+                <div class="text-center">
+                    <div class="text-info mb-3">
+                        <i class="fas fa-lightbulb text-4xl"></i>
+                    </div>
+                    <h4 class="font-bold mb-2">Technical</h4>
+                    <small class="opacity-60">Science fairs and tech competitions</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

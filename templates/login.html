@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Procur{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-[70vh]">
+    <div class="w-full max-w-md">
+
+        <div class="card bg-base-100 shadow-2xl border border-base-300 animate-fade-in">
+            <div class="card-body p-8">
+
+                <div class="text-center mb-8">
+                    <div
+                        class="inline-block p-4 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-content shadow-lg mb-6 animate-bounce-in">
+                        <i class="fas fa-sign-in-alt text-4xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-primary mb-3">Welcome Back</h2>
+                    <p class="opacity-70 text-lg">Sign in to your account to continue</p>
+                </div>
+
+
+                <form method="POST" class="space-y-6">
+                    <div class="form-control">
+                        <label class="label" for="username">
+                            <span class="label-text font-semibold">
+                                <i class="fas fa-user mr-2 text-primary"></i>Username
+                            </span>
+                        </label>
+                        <div class="join w-full group">
+                            <div class="join-item bg-base-200 px-4 flex items-center border-r border-base-300">
+                                <i
+                                    class="fas fa-user text-base-content/60 group-focus-within:text-primary transition-colors"></i>
+                            </div>
+                            <input type="text"
+                                class="input input-bordered join-item w-full focus:input-primary transition-all duration-300"
+                                id="username" name="username" placeholder="Enter your username" required>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label" for="password">
+                            <span class="label-text font-semibold">
+                                <i class="fas fa-lock mr-2 text-primary"></i>Password
+                            </span>
+                        </label>
+                        <div class="join w-full group">
+                            <div class="join-item bg-base-200 px-4 flex items-center border-r border-base-300">
+                                <i
+                                    class="fas fa-lock text-base-content/60 group-focus-within:text-primary transition-colors"></i>
+                            </div>
+                            <input type="password"
+                                class="input input-bordered join-item w-full focus:input-primary transition-all duration-300"
+                                id="password" name="password" placeholder="Enter your password" required>
+                        </div>
+                        <label class="label">
+                            <span class="label-text-alt">
+                                <a href="{{ url_for('password_forgot') }}"
+                                    class="link link-primary hover:link-primary-focus">Forgot password?</a>
+                            </span>
+                        </label>
+                    </div>
+
+
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" id="remember">
+                            <span class="label-text">Remember me for 30 days</span>
+                        </label>
+                    </div>
+
+
+                    <div class="form-control mt-8">
+                        <button type="submit"
+                            class="btn btn-primary btn-lg w-full group hover:shadow-xl transition-all duration-300">
+                            <i class="fas fa-sign-in-alt mr-2 group-hover:rotate-12 transition-transform"></i>
+                            Sign In
+                        </button>
+                    </div>
+                </form>
+
+
+                <div class="text-center">
+                    <p class="opacity-70 mb-3">Don't have an account?</p>
+                    <a href="{{ url_for('register') }}"
+                        class="btn btn-link btn-lg text-primary hover:text-primary-focus group">
+                        <i class="fas fa-user-plus mr-2 group-hover:scale-110 transition-transform"></i>
+                        Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card bg-base-200 shadow-lg mt-6 border border-base-300">
+            <div class="card-body p-4 text-center">
+                <div class="flex items-center justify-center gap-2 text-sm opacity-70">
+                    <i class="fas fa-shield-alt text-success"></i>
+                    <span>Your data is protected with enterprise-grade security</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute top-20 left-20 w-32 h-32 bg-primary/5 rounded-full animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-24 h-24 bg-secondary/5 rounded-full animate-pulse"
+        style="animation-delay: 1s;"></div>
+    <div class="absolute top-1/2 left-10 w-16 h-16 bg-accent/5 rounded-full animate-pulse" style="animation-delay: 2s;">
+    </div>
+</div>
+{% endblock %}
