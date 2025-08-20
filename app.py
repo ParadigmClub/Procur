@@ -10,15 +10,12 @@ import io
 import os
 # Paradigm ❤️ Souvenir Club
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', '8dc649191f5b209d51b6f9d134a77c1fea687a0265d06a27395d1c9d29d3df8d')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+# ok ish
 
 uri = os.environ.get('DATABASE_URL')
 if not uri:
-
-    uri = 'postgresql://postgres:wQyxDJQxSJrEJrGiofIkLhwVUgfpkxHp@ballast.proxy.rlwy.net:48936/railway'
-elif uri.startswith('postgres://'):
-
-    uri = uri.replace('postgres://', 'postgresql://', 1)
+    print("No DATABASE_URL found")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
